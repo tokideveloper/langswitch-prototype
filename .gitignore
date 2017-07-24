@@ -1,0 +1,7 @@
+Gemfile.lock
+*.gem
+*.swp
+*~
+_site/
+.sass-cache
+

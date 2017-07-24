@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>{{ page.title }}</title>
+</head>
+<body>
+
+{% assign langs = site.data.translation.langs %}
+{% assign defaultlangcode = site.data.translation.default.langcode %}
+
+{% assign urlparts = page.url | split:"/" %}
+{% assign currlangcode = urlparts[1] %}
+{% assign firsturlpartislangcode = false %}
+{% for lang in langs %}
+  {% if lang.langcode == currlangcode %}
+    {% assign firsturlpartislangcode = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+{% if firsturlpartislangcode == false %}
+  {% assign currlangcode = defaultlangcode %}
+{% endif %}
+
+{% assign urlremainder = "" %}
+{% for part in urlparts %}
+  {% if forloop.first %}
+    {% continue %}
+  {% elsif forloop.index0 == 1 and firsturlpartislangcode %}
+    {% continue %}
+  {% else %}
+    {% assign urlremainder = urlremainder | append:"/" | append:part %}
+  {% endif %}
+{% endfor %}
+
+{% assign warningmessage = "" %}
+{% if currlangcode != defaultlangcode %}
+  {% for lang in langs %}
+    {% if lang.langcode == currlangcode %}
+      {% assign msg = lang.warningmark %}
+      {% capture warningmessage %}{{ warningmessage }}<b>{{ msg | default:"Caution" }}:</b> {% endcapture %}
+      {% assign msg = lang.warningmsg %}
+      {% capture warningmessage %}{{ warningmessage }}{{ msg | default:"This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign langswitch = "" %}
+{% for lang in langs %}
+  {% if lang.langcode %}
+    {% assign targeturl = urlremainder %}
+    {% if lang.langcode != defaultlangcode %}
+      {% capture targeturl %}/{{ lang.langcode }}{{ targeturl }}{% endcapture %}
+    {% endif %}
+    {% if lang.langcode == currlangcode %}
+      {% assign langswitch = langswitch | append:"<b>" %}
+    {% endif %}
+    {% capture langswitch %}{{ langswitch }}<a href="{{ targeturl }}">{{ lang.label }}</a>{% endcapture %}
+    {% if lang.langcode == currlangcode %}
+      {% assign langswitch = langswitch | append:"</b>" %}
+    {% endif %}
+    {% if forloop.last == false %}
+      {% assign langswitch = langswitch | append:" &bull; " %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+
+{{ langswitch }}<br>
+<br>
+<i>{{ warningmessage }}</i>
+{% if warningmessage != "" %}<br>{% endif %}
+{{ content }}<br>
+{{ langswitch }}<br>
+
+</body>
+</html>

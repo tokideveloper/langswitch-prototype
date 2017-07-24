@@ -1,0 +1,45 @@
+default:
+  langcode:
+    en-US
+
+langs:
+#- langcode: de-DE                  # ISO code as listed here: http://www.lingoes.net/en/translator/langcode.htm
+#  langcodelang: German             # Language, written in English (not used)
+#  langcodecountry: Germany         # Country, written in English (not used)
+#  label: Deutsch (Deutschland)     # Label as to be listed in the language switch
+#  warningmark: Vorsicht
+#  warningmsg: Diese Seite ist eine unverifizierte Übersetzung.
+#              Das Qubes OS Project kann die Richtigkeit von Übersetzungen in Sprachen, die unser Team nicht versteht, nicht bewerten.
+
+- langcode: de-DE
+  langcodelang: German
+  langcodecountry: Germany
+  label: Deutsch
+  warningmark: Vorsicht
+  warningmsg: Diese Seite ist eine unverifizierte Übersetzung.
+              Das Qubes OS Project kann die Richtigkeit von Übersetzungen in Sprachen, die unser Team nicht versteht, nicht bewerten.
+
+- langcode: en-US
+  langcodelang: English
+  langcodecountry: USA
+  label: English (official)
+  warningmark: Caution
+  warningmsg: This page is an unverified translation.
+              The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read.
+
+- langcode: pt-BR
+  langcodelang: Portuguese
+  langcodecountry: Brazil
+  label: ...Portuguese... (...Brazil...)
+  warningmark: ...Caution...
+  warningmsg: ...This page is an unverified translation. ...
+              ...The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read. ...
+
+- langcode: pt-PT
+  langcodelang: Portuguese
+  langcodecountry: Portugal
+  label: ...Portuguese... (...Portugal...)
+  warningmark: ...Caution...
+  warningmsg: ...This page is an unverified translation. ...
+              ...The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read. ...
+
