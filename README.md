@@ -5,7 +5,7 @@
 
 This repository contains a minimum prototype implementation of a language switch plus an appropriate warning message. The code is the same for both translated and untranslated versions.
 
-Given that you have a [proper installation of Jekyll][jekyll], clone or download this repository, enter the directory "myblog" and run a Jekyll server via
+Given that you have a [proper installation of Jekyll][jekyll], clone or download this repository, enter the directory "langswitch-prototype" and run a Jekyll server via
 
     $ bundle exec jekyll serve
 
