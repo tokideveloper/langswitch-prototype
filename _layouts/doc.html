@@ -24,12 +24,14 @@
 {% for part in urlparts %}
   {% if forloop.first %}
     {% continue %}
-  {% elsif forloop.index0 == 1 and firsturlpartislangcode %}
-    {% continue %}
-  {% else %}
-    {% assign urlremainder = urlremainder | append:"/" | append:part %}
+  {% elsif forloop.index0 == 1 %}
+    {% if firsturlpartislangcode %}
+      {% continue %}
+    {% endif %}
   {% endif %}
+  {% assign urlremainder = urlremainder | append:"/" | append:part %}
 {% endfor %}
+{% assign urlremainder = urlremainder | append:"/" %}
 
 {% assign warningmessage = "" %}
 {% if currlangcode != defaultlangcode %}
@@ -67,8 +69,9 @@
 
 {{ langswitch }}<br>
 <br>
-<i>{{ warningmessage }}</i>
-{% if warningmessage != "" %}<br>{% endif %}
+{% if warningmessage != "" %}
+  <i>{{ warningmessage }}</i><br>
+{% endif %}
 {{ content }}<br>
 {{ langswitch }}<br>
 

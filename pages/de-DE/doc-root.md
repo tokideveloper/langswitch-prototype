@@ -21,9 +21,15 @@ Und [hier][ccc] ist ein relativer Link zu einer anderen Seite.
 
 Und [hier][ddd] ist ein absoluter Link zu einer anderen Seite.
 
+Und [hier][eee] ist ein relativer Link zum Wurzelverzeichnis.
+
+Und [hier][fff] ist ein absoluter Link zum Wurzelverzeichnis.
+
 Tschüss!
 
 [aaa]: testpage1/
-[bbb]: /doc/testpage1/
+[bbb]: /de-DE/doc/testpage1/
 [ccc]: testpage2/
-[ddd]: /doc/testpage2/
+[ddd]: /de-DE/doc/testpage2/
+[eee]: ../
+[fff]: /de-DE/

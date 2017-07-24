@@ -21,9 +21,15 @@ Und [hier][ccc] ist ein relativer Link zum Wurzelverzeichnis von Doc.
 
 Und [hier][ddd] ist ein absoluter Link zum Wurzelverzeichnis von Doc.
 
+Und [hier][eee] ist ein relativer Link zum Wurzelverzeichnis.
+
+Und [hier][fff] ist ein absoluter Link zum Wurzelverzeichnis.
+
 Tschüss!
 
 [aaa]: ../testpage2/
 [bbb]: /de-DE/doc/testpage2/
 [ccc]: ../
 [ddd]: /de-DE/doc/
+[eee]: ../../
+[fff]: /de-DE/

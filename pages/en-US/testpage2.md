@@ -21,9 +21,15 @@ And [here][ccc] is a relative link to the root directory of Doc.
 
 And [here][ddd] is an absolute link to the root directory of Doc.
 
+And [here][eee] is a relative link to the root directory.
+
+And [here][fff] is an absolute link to the root directory.
+
 Have fun!
 
 [aaa]: ../testpage1/
 [bbb]: /doc/testpage1/
 [ccc]: ../
 [ddd]: /doc/
+[eee]: ../../
+[fff]: /
