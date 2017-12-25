@@ -4,68 +4,123 @@
 </head>
 <body>
 
+{% comment %}
+  *** set shortcut variables ***
+    langs: Array of lang defs.
+    defaultlangcode: Default lang code, i.e. the official language.
+{% endcomment %}
+
 {% assign langs = site.data.translation.langs %}
 {% assign defaultlangcode = site.data.translation.default.langcode %}
-
-{% assign urlparts = page.url | split:"/" %}
-{% assign currlangcode = urlparts[1] %}
-{% assign firsturlpartislangcode = false %}
+{% if defaultlangcode == "" %}
+  {% comment %} TODO: Die since a default lang is not given. {% endcomment %}
+{% endif %}
 {% for lang in langs %}
-  {% if lang.langcode == currlangcode %}
-    {% assign firsturlpartislangcode = true %}
+  {% if lang.langcode == defaultlangcode %}
+    {% assign defaultlangcodeavailable = true %}
     {% break %}
   {% endif %}
 {% endfor %}
-{% if firsturlpartislangcode == false %}
+{% if defaultlangcodeavailable == False %}
+  {% comment %} TODO: Die since an entry for the default lang does not exist. {% endcomment %}
+{% endif %}
+
+{% comment %} TODO: Check if these variables are sanitized. {% endcomment %}
+
+
+
+{% comment %}
+  *** set variables ***
+    currlangcode: The non-empty code of the lang the visitor has chosen.
+    firsturlpathpartislangcode: True iff the first URL path part is a lang code (e.g. "/doc/contributing/" has "doc" as the first url part, which is not a lang code).
+    urlpathparts: An array containing the parts of the url, separated by slashes.
+{% endcomment %}
+
+{% assign urlpathparts = page.url | split: "/" %}
+{% assign currlangcode = urlpathparts[1] %}
+{% assign firsturlpathpartislangcode = false %}
+{% for lang in langs %}
+  {% if lang.langcode == currlangcode %}
+    {% assign firsturlpathpartislangcode = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+{% if firsturlpathpartislangcode == false %}
   {% assign currlangcode = defaultlangcode %}
 {% endif %}
 
-{% assign urlremainder = "" %}
-{% for part in urlparts %}
+
+
+{% comment %}
+  *** set variables ***
+    urlpathremainder: The URL path part targeting the non-lang-prefixed resource, reconstructed by concatenating the urlpathparts with slashes inbetween and at the end. (e.g. if the original URL path is "/doc/contributing/" or "/de-DE/doc/contributing/" then both of them will result in urlpathremainder = "/doc/contributing/").
+{% endcomment %}
+
+{% assign urlpathremainder = "" %}
+{% for part in urlpathparts %}
   {% if forloop.first %}
     {% continue %}
   {% elsif forloop.index0 == 1 %}
-    {% if firsturlpartislangcode %}
+    {% if firsturlpathpartislangcode %}
       {% continue %}
     {% endif %}
   {% endif %}
-  {% assign urlremainder = urlremainder | append:"/" | append:part %}
+  {% assign urlpathremainder = urlpathremainder | append: "/" | append: part %}
 {% endfor %}
-{% assign urlremainder = urlremainder | append:"/" %}
+{% assign urlpathremainder = urlpathremainder | append: "/" %}
+
+
+
+{% comment %}
+  *** set variables ***
+    warningmessage: Empty if the current lang is the official one. Otherwise a warning message stating possible existence of translation mistakes.
+{% endcomment %}
 
 {% assign warningmessage = "" %}
 {% if currlangcode != defaultlangcode %}
   {% for lang in langs %}
     {% if lang.langcode == currlangcode %}
-      {% assign msg = lang.warningmark %}
-      {% capture warningmessage %}{{ warningmessage }}<b>{{ msg | default:"Caution" }}:</b> {% endcapture %}
-      {% assign msg = lang.warningmsg %}
-      {% capture warningmessage %}{{ warningmessage }}{{ msg | default:"This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
+      {% capture warningmessage %}<b>{{ lang.warningmark | default: "Caution" }}:</b> {{ lang.warningmsg | default: "This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
       {% break %}
     {% endif %}
   {% endfor %}
 {% endif %}
 
+{% comment %} TODO: Due to non-latin-alphabet langs like Arabian, Japanese etc. it might be wise to merge YAML variables "warningmark" and "warningmessage". {% endcomment %}
+{% comment %} TODO: It might be wise to ensure that there are no non-allowed tags in any translation (YAML, HTML etc.). {% endcomment %}
+
+
+
+{% comment %}
+  *** set variables ***
+    langswitch: The lang switch containing links to all available langs. The lang code part of the link to the official lang will be omitted. The current lang will be typed in bold. Bullets will separate all langs.
+{% endcomment %}
+
 {% assign langswitch = "" %}
 {% for lang in langs %}
   {% if lang.langcode %}
-    {% assign targeturl = urlremainder %}
+    {% assign targeturl = urlpathremainder %}
     {% if lang.langcode != defaultlangcode %}
       {% capture targeturl %}/{{ lang.langcode }}{{ targeturl }}{% endcapture %}
     {% endif %}
     {% if lang.langcode == currlangcode %}
-      {% assign langswitch = langswitch | append:"<b>" %}
+      {% assign langswitch = langswitch | append: "<b>" %}
     {% endif %}
     {% capture langswitch %}{{ langswitch }}<a href="{{ targeturl }}">{{ lang.label }}</a>{% endcapture %}
     {% if lang.langcode == currlangcode %}
-      {% assign langswitch = langswitch | append:"</b>" %}
+      {% assign langswitch = langswitch | append: "</b>" %}
     {% endif %}
     {% if forloop.last == false %}
-      {% assign langswitch = langswitch | append:" &bull; " %}
+      {% assign langswitch = langswitch | append: " &bull; " %}
     {% endif %}
   {% endif %}
 {% endfor %}
 
+
+
+{% comment %}
+  *** print langswitches, warning message and content ***
+{% endcomment %}
 
 {{ langswitch }}<br>
 <br>
