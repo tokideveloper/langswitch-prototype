@@ -80,7 +80,7 @@
 {% if currlangcode != defaultlangcode %}
   {% for lang in langs %}
     {% if lang.langcode == currlangcode %}
-      {% capture warningmessage %}<b>{{ lang.warningmark | default: "Caution" }}:</b> {{ lang.warningmsg | default: "This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
+      {% capture warningmessage %}<b>{{ lang.warningmark | escape | default: "Caution" }}:</b> {{ lang.warningmsg | escape | default: "This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
       {% break %}
     {% endif %}
   {% endfor %}
