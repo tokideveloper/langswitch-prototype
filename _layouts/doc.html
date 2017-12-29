@@ -7,7 +7,8 @@
 {% comment %}
   *** set shortcut variables ***
     langs: Array of lang defs.
-    defaultlangcode: Default lang code, i.e. the official language.
+    defaultlang: The default lang, i.e. the official language.
+    defaultlangcode: The code of the default lang.
     defaultlangcodeavailable: If necessary internal data are available.
 {% endcomment %}
 
@@ -18,6 +19,7 @@
 {% endif %}
 {% for lang in langs %}
   {% if lang.langcode == defaultlangcode %}
+    {% assign defaultlang = lang %}
     {% assign defaultlangcodeavailable = true %}
     {% break %}
   {% endif %}
@@ -33,9 +35,10 @@
 
 {% comment %}
   *** set variables ***
+    currlang: The lang the visitor has chosen.
     currlangcode: The non-empty code of the lang the visitor has chosen.
     firsturlpathpartislangcode: True iff the first URL path part is a lang code (e.g. "/doc/contributing/" has "doc" as the first url part, which is not a lang code).
-    urlpathparts: An array containing the parts of the url, separated by slashes.
+    urlpathparts: An array containing the parts of the url path, separated by slashes.
 {% endcomment %}
 
 {% assign urlpathparts = page.url | split: "/" %}
@@ -43,11 +46,13 @@
 {% assign firsturlpathpartislangcode = false %}
 {% for lang in langs %}
   {% if lang.langcode == currlangcode %}
+    {% assign currlang = lang %}
     {% assign firsturlpathpartislangcode = true %}
     {% break %}
   {% endif %}
 {% endfor %}
 {% if firsturlpathpartislangcode == false %}
+  {% assign currlang = defaultlang %}
   {% assign currlangcode = defaultlangcode %}
 {% endif %}
 
@@ -84,12 +89,7 @@
 
 {% assign warningmessage = "" %}
 {% if currlangcode != defaultlangcode %}
-  {% for lang in langs %}
-    {% if lang.langcode == currlangcode %}
-      {% capture warningmessage %}<b>{{ lang.warningmark | escape | default: "Caution" }}:</b> {{ lang.warningmsg | escape | default: "This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
-      {% break %}
-    {% endif %}
-  {% endfor %}
+  {% capture warningmessage %}<b>{{ currlang.warningmark | escape | default: "Caution" }}:</b> {{ currlang.warningmsg | escape | default: "This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
 {% endif %}
 
 {% comment %} TODO: Due to non-latin-alphabet langs like Arabian, Japanese etc. it might be wise to merge YAML variables "warningmark" and "warningmessage". {% endcomment %}
@@ -114,6 +114,7 @@
     {% if lang.langcode == currlangcode %}
       {% assign langswitch = langswitch | append: "<b>" %}
     {% endif %}
+    {% comment %} Add link. {% endcomment %}
     {% capture langswitch %}{{ langswitch }}<a href="{{ targeturl }}">{{ lang.label }}</a>{% endcapture %}
     {% comment %} Surround link to current lang with bold tag (end). {% endcomment %}
     {% if lang.langcode == currlangcode %}
@@ -148,7 +149,9 @@
 {% endcomment %}
 
 {% assign langs = nil %}
+{% assign defaultlang = nil %}
 {% assign defaultlangcode = nil %}
+{% assign currlang = nil %}
 {% assign currlangcode = nil %}
 {% assign firsturlpathpartislangcode = nil %}
 {% assign urlpathparts = nil %}
