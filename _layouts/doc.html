@@ -8,6 +8,7 @@
   *** set shortcut variables ***
     langs: Array of lang defs.
     defaultlangcode: Default lang code, i.e. the official language.
+    defaultlangcodeavailable: If necessary internal data are available.
 {% endcomment %}
 
 {% assign langs = site.data.translation.langs %}
@@ -24,6 +25,7 @@
 {% if defaultlangcodeavailable == False %}
   {% comment %} TODO: Die since an entry for the default lang does not exist. {% endcomment %}
 {% endif %}
+{% assign defaultlangcodeavailable = nil %}
 
 {% comment %} TODO: Check if these variables are sanitized. {% endcomment %}
 
@@ -113,6 +115,7 @@
     {% if forloop.last == false %}
       {% assign langswitch = langswitch | append: " &bull; " %}
     {% endif %}
+    {% assign targeturl = nil %}
   {% endif %}
 {% endfor %}
 
@@ -129,6 +132,22 @@
 {% endif %}
 {{ content }}<br>
 {{ langswitch }}<br>
+
+
+
+{% comment %}
+  *** unset variables ***
+{% endcomment %}
+
+{% assign langs = nil %}
+{% assign defaultlangcode = nil %}
+{% assign currlangcode = nil %}
+{% assign firsturlpathpartislangcode = nil %}
+{% assign urlpathparts = nil %}
+{% assign urlpathremainder = nil %}
+{% assign warningmessage = nil %}
+{% assign langswitch = nil %}
+{% assign targeturl = nil %}
 
 </body>
 </html>
