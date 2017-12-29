@@ -9,27 +9,16 @@
     langs: Array of lang defs.
     defaultlang: The default lang, i.e. the official language.
     defaultlangcode: The code of the default lang.
-    defaultlangcodeavailable: If necessary internal data are available.
 {% endcomment %}
 
 {% assign langs = site.data.translation.langs %}
 {% assign defaultlangcode = site.data.translation.default.langcode %}
-{% if defaultlangcode == "" %}
-  {% comment %} TODO: Die since a default lang is not given. {% endcomment %}
-{% endif %}
 {% for lang in langs %}
   {% if lang.langcode == defaultlangcode %}
     {% assign defaultlang = lang %}
-    {% assign defaultlangcodeavailable = true %}
     {% break %}
   {% endif %}
 {% endfor %}
-{% if defaultlangcodeavailable == False %}
-  {% comment %} TODO: Die since an entry for the default lang does not exist. {% endcomment %}
-{% endif %}
-{% assign defaultlangcodeavailable = nil %}
-
-{% comment %} TODO: Check if these variables are sanitized. {% endcomment %}
 
 
 
@@ -65,6 +54,7 @@
 
 {% assign urlpathremainder = page.url %}
 {% if firsturlpathpartislangcode %}
+  {% comment %} Remove lang code prefix. {% endcomment %}
   {% assign prefixtoremove = "/" | append: currlangcode %}
   {% assign urlpathremainder = urlpathremainder | remove_first: prefixtoremove %}
   {% assign prefixtoremove = nil %}
@@ -94,28 +84,26 @@
 
 {% assign langswitch = "" %}
 {% for lang in langs %}
-  {% if lang.langcode %}
-    {% assign targeturl = urlpathremainder %}
-    {% comment %} Add the lang code prefix if it is not the default lang. {% endcomment %}
-    {% if lang.langcode != defaultlangcode %}
-      {% capture targeturl %}/{{ lang.langcode }}{{ targeturl }}{% endcapture %}
-    {% endif %}
-    {% comment %} Surround link to current lang with bold tag (begin). {% endcomment %}
-    {% if lang.langcode == currlangcode %}
-      {% assign langswitch = langswitch | append: "<b>" %}
-    {% endif %}
-    {% comment %} Add link. {% endcomment %}
-    {% capture langswitch %}{{ langswitch }}<a href="{{ targeturl }}">{{ lang.label }}</a>{% endcapture %}
-    {% comment %} Surround link to current lang with bold tag (end). {% endcomment %}
-    {% if lang.langcode == currlangcode %}
-      {% assign langswitch = langswitch | append: "</b>" %}
-    {% endif %}
-    {% comment %} Add a bullet inbetween two langs. {% endcomment %}
-    {% if forloop.last == false %}
-      {% assign langswitch = langswitch | append: " &bull; " %}
-    {% endif %}
-    {% assign targeturl = nil %}
+  {% assign targeturl = urlpathremainder %}
+  {% comment %} Add the lang code prefix if it is not the default lang. {% endcomment %}
+  {% if lang.langcode != defaultlangcode %}
+    {% capture targeturl %}/{{ lang.langcode }}{{ targeturl }}{% endcapture %}
   {% endif %}
+  {% comment %} Surround link to current lang with bold tag (begin). {% endcomment %}
+  {% if lang.langcode == currlangcode %}
+    {% assign langswitch = langswitch | append: "<b>" %}
+  {% endif %}
+  {% comment %} Add link. {% endcomment %}
+  {% capture langswitch %}{{ langswitch }}<a href="{{ targeturl }}">{{ lang.label }}</a>{% endcapture %}
+  {% comment %} Surround link to current lang with bold tag (end). {% endcomment %}
+  {% if lang.langcode == currlangcode %}
+    {% assign langswitch = langswitch | append: "</b>" %}
+  {% endif %}
+  {% comment %} Add a bullet inbetween two langs. {% endcomment %}
+  {% if forloop.last == false %}
+    {% assign langswitch = langswitch | append: " &bull; " %}
+  {% endif %}
+  {% assign targeturl = nil %}
 {% endfor %}
 
 
