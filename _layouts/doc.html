@@ -60,25 +60,15 @@
 
 {% comment %}
   *** set variables ***
-    urlpathremainder: The URL path part targeting the non-lang-prefixed resource, reconstructed by concatenating the urlpathparts with slashes inbetween and at the end. (e.g. if the original URL path is "/doc/contributing/" or "/de-DE/doc/contributing/" then both of them will result in urlpathremainder = "/doc/contributing/").
+    urlpathremainder: The URL path part targeting the non-lang-prefixed resource. (e.g. if the original URL path is "/doc/contributing/" or "/de-DE/doc/contributing/" then both of them will result in urlpathremainder = "/doc/contributing/").
 {% endcomment %}
 
-{% assign urlpathremainder = "" %}
-{% for part in urlpathparts %}
-  {% if forloop.first %}
-    {% comment %} The part before the first slash which is always empty and to ignore. {% endcomment %}
-    {% continue %}
-  {% elsif forloop.index0 == 1 %}
-    {% comment %} The part after the first slash which could indicate the current foreign lang code, to be skipped. {% endcomment %}
-    {% if firsturlpathpartislangcode %}
-      {% continue %}
-    {% endif %}
-  {% endif %}
-  {% comment %} A part after the optional lang code which leads to the resource, to be added. {% endcomment %}
-  {% assign urlpathremainder = urlpathremainder | append: "/" | append: part %}
-{% endfor %}
-{% comment %} The trailing slash. {% endcomment %}
-{% assign urlpathremainder = urlpathremainder | append: "/" %}
+{% assign urlpathremainder = page.url %}
+{% if firsturlpathpartislangcode %}
+  {% assign prefixtoremove = "/" | append: currlangcode %}
+  {% assign urlpathremainder = urlpathremainder | remove_first: prefixtoremove %}
+  {% assign prefixtoremove = nil %}
+{% endif %}
 
 
 
