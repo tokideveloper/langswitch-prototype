@@ -61,14 +61,18 @@
 {% assign urlpathremainder = "" %}
 {% for part in urlpathparts %}
   {% if forloop.first %}
+    {% comment %} The part before the first slash which is always empty and to ignore. {% endcomment %}
     {% continue %}
   {% elsif forloop.index0 == 1 %}
+    {% comment %} The part after the first slash which could indicate the current foreign lang code, to be skipped. {% endcomment %}
     {% if firsturlpathpartislangcode %}
       {% continue %}
     {% endif %}
   {% endif %}
+  {% comment %} A part after the optional lang code which leads to the resource, to be added. {% endcomment %}
   {% assign urlpathremainder = urlpathremainder | append: "/" | append: part %}
 {% endfor %}
+{% comment %} The trailing slash. {% endcomment %}
 {% assign urlpathremainder = urlpathremainder | append: "/" %}
 
 
@@ -102,16 +106,20 @@
 {% for lang in langs %}
   {% if lang.langcode %}
     {% assign targeturl = urlpathremainder %}
+    {% comment %} Add the lang code prefix if it is not the default lang. {% endcomment %}
     {% if lang.langcode != defaultlangcode %}
       {% capture targeturl %}/{{ lang.langcode }}{{ targeturl }}{% endcapture %}
     {% endif %}
+    {% comment %} Surround link to current lang with bold tag (begin). {% endcomment %}
     {% if lang.langcode == currlangcode %}
       {% assign langswitch = langswitch | append: "<b>" %}
     {% endif %}
     {% capture langswitch %}{{ langswitch }}<a href="{{ targeturl }}">{{ lang.label }}</a>{% endcapture %}
+    {% comment %} Surround link to current lang with bold tag (end). {% endcomment %}
     {% if lang.langcode == currlangcode %}
       {% assign langswitch = langswitch | append: "</b>" %}
     {% endif %}
+    {% comment %} Add a bullet inbetween two langs. {% endcomment %}
     {% if forloop.last == false %}
       {% assign langswitch = langswitch | append: " &bull; " %}
     {% endif %}
