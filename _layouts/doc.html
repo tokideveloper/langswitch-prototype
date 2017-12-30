@@ -69,7 +69,7 @@
 
 {% assign warningmessage = "" %}
 {% if currlangcode != defaultlangcode %}
-  {% capture warningmessage %}<b>{{ currlang.warningmark | escape | default: "Caution" }}:</b> {{ currlang.warningmsg | escape | default: "This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
+  {% capture warningmessage %}<strong>{{ currlang.warningmark | escape | default: "Caution" }}:</strong> {{ currlang.warningmsg | escape | default: "This page is an unverified translation. The Qubes OS Project cannot evaluate the accuracy of translations into languages that our team cannot read." }}{% endcapture %}
 {% endif %}
 
 {% comment %} TODO: Due to non-latin-alphabet langs like Arabian, Japanese etc. it might be wise to merge YAML variables "warningmark" and "warningmessage". {% endcomment %}
@@ -79,7 +79,7 @@
 
 {% comment %}
   *** set variables ***
-    langswitch: The lang switch containing links to all available langs. The lang code part of the link to the official lang will be omitted. The current lang will be typed in bold. Bullets will separate all langs.
+    langswitch: The lang switch containing links to all available langs. The lang code part of the link to the official lang will be omitted. The current lang will be typed in strongface. Bullets will separate all langs.
 {% endcomment %}
 
 {% assign langswitch = "" %}
@@ -89,15 +89,15 @@
   {% if lang.langcode != defaultlangcode %}
     {% capture targeturl %}/{{ lang.langcode }}{{ targeturl }}{% endcapture %}
   {% endif %}
-  {% comment %} Surround link to current lang with bold tag (begin). {% endcomment %}
+  {% comment %} Surround link to current lang with the strong tag (begin). {% endcomment %}
   {% if lang.langcode == currlangcode %}
-    {% assign langswitch = langswitch | append: "<b>" %}
+    {% assign langswitch = langswitch | append: "<strong>" %}
   {% endif %}
   {% comment %} Add link. {% endcomment %}
   {% capture langswitch %}{{ langswitch }}<a href="{{ targeturl }}">{{ lang.label }}</a>{% endcapture %}
-  {% comment %} Surround link to current lang with bold tag (end). {% endcomment %}
+  {% comment %} Surround link to current lang with the strong tag (end). {% endcomment %}
   {% if lang.langcode == currlangcode %}
-    {% assign langswitch = langswitch | append: "</b>" %}
+    {% assign langswitch = langswitch | append: "</strong>" %}
   {% endif %}
   {% comment %} Add a bullet inbetween two langs. {% endcomment %}
   {% if forloop.last == false %}
@@ -115,7 +115,7 @@
 {{ langswitch }}<br>
 <br>
 {% if warningmessage != "" %}
-  <i>{{ warningmessage }}</i><br>
+  <em>{{ warningmessage }}</em><br>
 {% endif %}
 {{ content }}<br>
 {{ langswitch }}<br>
