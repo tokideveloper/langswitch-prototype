@@ -51,6 +51,10 @@ def merge_yfm(orig_yfm, trl_yfm, langcode):
     if 'title' in keys:
         result_yfm['title'] = trl_yfm['title']
 
+    # lang
+    if 'lang' in keys:
+        result_yfm['lang'] = langcode
+
     # permalink
     if 'permalink' in keys:
         result_yfm['permalink'] = adapt_path(result_yfm['permalink'], langcode)
