@@ -1,0 +1,192 @@
+#!/usr/bin/python3
+
+import sys
+import re
+import subprocess
+
+
+
+def get_yaml_front_matter(gfm_lines):
+    counter = 0
+    start = 0
+    end = 0
+    for i in range(len(gfm_lines)):
+        if gfm_lines[i] == '---\n':
+            counter += 1
+            if counter == 1:
+                start = i
+            elif counter == 2:
+                end = i + 1
+                return gfm_lines[start:end], start, end
+    if counter == 1:
+        return gfm_lines[start:], start, len(gfm_lines)
+    # case counter == 0:
+    return [], 0, 0
+
+
+
+def line_only_made_of(line, char):
+    length = len(line)
+    for i in range(length - 1):
+        if line[i] != char:
+            return False
+    return line[length - 1] == '\n'
+
+
+
+def render(gfm_lines):
+    p = subprocess.run(['kramdown'], stdout=subprocess.PIPE, input=''.join(gfm_lines), encoding='utf8')
+    if p.returncode != 0:
+        return None
+    return p.stdout.splitlines(1)
+
+
+
+def look_for_headline(rendered_html_lines, headline_id):
+    for l in range(len(rendered_html_lines)):
+        x = re.search('<h\\d id="' + headline_id + '">', rendered_html_lines[l])
+        if x is None:
+            continue
+        c = x.start()
+        if c is None:
+            continue
+        else:
+            return l, c
+    return None
+
+
+
+def extract_headline_id(rendered_html_lines, l, c):
+    line = rendered_html_lines[l]
+    start = c + 8   # len('<h1 id="') == 8
+    line = line[start:]
+    end = line.find('"')
+    line = line[:end]
+    return line
+
+
+
+def try_create_id(gfm_lines, line_number, this_line, next_line, rendered_html_lines):
+    # save headline
+    saved_headline = gfm_lines[line_number]
+
+    hlx = None
+    hly = None
+
+    if this_line.startswith('#'):
+        # headline starting with '#'
+        gfm_lines[line_number] = '# xqz\n'
+        hlx = look_for_headline(render(gfm_lines), 'xqz')
+        if hlx is not None:
+            gfm_lines[line_number] = '# yqz\n'
+            hly = look_for_headline(render(gfm_lines), 'yqz')
+    elif len(next_line) >= 3 and (line_only_made_of(next_line, '=') or line_only_made_of(next_line, '-')):
+        # headline starting with '===' or '---'
+        gfm_lines[line_number] = 'xqz\n'
+        hlx = look_for_headline(render(gfm_lines), 'xqz')
+        if hlx is not None:
+            gfm_lines[line_number] = 'yqz\n'
+            hly = look_for_headline(render(gfm_lines), 'yqz')
+
+    # revert headline
+    gfm_lines[line_number] = saved_headline
+
+    # check findings
+    if hlx is None or hly is None:
+        return None
+    hlx_line, hlx_col = hlx
+    hly_line, hly_col = hly
+    if hlx_line == hly_line and hlx_col == hly_col:
+        # headline found
+        return extract_headline_id(rendered_html_lines, hlx_line, hlx_col)
+    else:
+        return None
+
+
+
+def create_line_to_id_map(gfm_lines):
+    result = {}
+    gfm_lines2 = gfm_lines[:]
+    rendered_html_lines = render(gfm_lines)
+
+    # line-by-line: assume a headline
+    n = len(gfm_lines2)
+    for i in range(n):
+        this_line = gfm_lines2[i]
+        next_line = ''
+        if i < n - 1:
+            next_line = gfm_lines2[i + 1]
+        hid = try_create_id(gfm_lines2, i, this_line, next_line, rendered_html_lines)
+        if hid is not None:
+            result[i] = hid
+
+    return result
+
+
+
+def insert_ids_to_gfm_file(line_to_id_map, gfm_lines):
+    result = gfm_lines[:]
+    for key, value in line_to_id_map.items():
+        str_to_insert = '<a id="' + value + '"></a>'
+        line = result[key]
+        if line.startswith('#'):
+            result[key + 1] = str_to_insert + result[key + 1]
+        else:
+            result[key + 2] = str_to_insert + result[key + 2]
+    return result
+
+
+
+def merge_ids_in_gfm_files(orig_gfm_lines, trl_gfm_lines):
+    # assuming that both files match line by line such that matching headlines are in the same lines
+
+    # get yaml front matter from orig
+    orig_yaml_front_matter, orig_start, orig_end = get_yaml_front_matter(orig_gfm_lines)
+
+    # get yaml front matter from trl
+    trl_yaml_front_matter, trl_start, trl_end = get_yaml_front_matter(trl_gfm_lines)
+
+    # get body from trl
+    trl_body = trl_gfm_lines[trl_end:]
+
+    # get body from orig
+    orig_body = orig_gfm_lines[orig_end:]
+
+    # create line-to-id map
+    orig_line_to_id_map = create_line_to_id_map(orig_body)
+
+    # insert ids
+    preresult = insert_ids_to_gfm_file(orig_line_to_id_map, trl_body)
+
+    # create translated document with adapted body
+    result_trl_gfm = ''.join(trl_yaml_front_matter) + ''.join(preresult)
+
+    return result_trl_gfm
+
+
+
+def main():
+    if len(sys.argv) != 3:
+        sys.exit(1)
+
+    # read original file
+    orig_gfm_lines = []
+    with open(sys.argv[1], 'r') as file:
+        orig_gfm_lines = file.readlines()
+
+    # read translated file
+    trl_gfm_lines = []
+    with open(sys.argv[2], 'r') as file:
+        trl_gfm_lines = file.readlines()
+
+    # merge ids in gfm files
+    result = merge_ids_in_gfm_files(orig_gfm_lines, trl_gfm_lines)
+
+    # print result
+    print(result, end='')
+
+
+
+if __name__ == '__main__':
+    main()
+
