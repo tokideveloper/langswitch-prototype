@@ -58,8 +58,16 @@ def look_for_headline(rendered_html_lines, headline_id):
 
 def extract_headline_id(rendered_html_lines, l, c):
     line = rendered_html_lines[l]
-    start = c + 8   # len('<h1 id="') == 8
-    line = line[start:]
+    line = line[c:]
+    x = re.search('<h\\d id="', line)
+    if x is None:
+        return None
+    col = x.start()
+    if col is None:
+        return None
+    elif col > 0:
+        return None
+    line = line[8:]   # len('<h1 id="') == 8
     end = line.find('"')
     line = line[:end]
     return line
