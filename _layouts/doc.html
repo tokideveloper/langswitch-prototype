@@ -123,6 +123,26 @@
 
 
 {% comment %}
+  *** print website architecture ***
+{% endcomment %}
+
+{% if currlangcode != defaultlangcode %}
+  {% assign files = site.data-translated %}
+  {% assign currlang_files = files | where: 'lang', currlangcode %}
+  {% assign currlang_architecture_files = currlang_files | where: 'type', 'arch' %}
+  {% for currlang_architecture_file in currlang_architecture_files %}
+    {% assign data = currlang_architecture_file.data %}
+    <b>{{ data[0].some }}</b>
+  {% endfor %}
+{% else %}
+  {% assign data = site.data.arch.data %}
+  <b>{{ data[0].some }}</b>
+{% endif %}
+
+
+
+
+{% comment %}
   *** unset variables ***
 {% endcomment %}
 
@@ -137,6 +157,11 @@
 {% assign warningmessage = nil %}
 {% assign langswitch = nil %}
 {% assign targeturl = nil %}
+{% assign files = nil %}
+{% assign currlang_files = nil %}
+{% assign currlang_architecture_files = nil %}
+{% assign currlang_architecture_file = nil %}
+{% assign data = nil %}
 
 </body>
 </html>

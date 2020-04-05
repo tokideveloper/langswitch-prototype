@@ -32,3 +32,8 @@ gems:
 exclude:
   - Gemfile
   - Gemfile.lock
+collections:
+  data-translated:
+    output: false
+  pages-translated:
+    output: true
