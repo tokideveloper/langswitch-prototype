@@ -74,41 +74,50 @@ def extract_headline_id(rendered_html_lines, l, c):
 
 
 
-def try_create_id(gfm_lines, line_number, this_line, next_line, rendered_html_lines):
+def try_create_id(gfm_lines, line_number, this_line, next_line, rendered_html_lines, placeholder):
     # save headline
     saved_headline = gfm_lines[line_number]
 
-    hlx = None
-    hly = None
+    hl = None
 
     if this_line.startswith('#'):
         # headline starting with '#'
-        gfm_lines[line_number] = '# xqz\n'
-        hlx = look_for_headline(render(gfm_lines), 'xqz')
-        if hlx is not None:
-            gfm_lines[line_number] = '# yqz\n'
-            hly = look_for_headline(render(gfm_lines), 'yqz')
+        gfm_lines[line_number] = '# ' + placeholder + '\n'
+        hl = look_for_headline(render(gfm_lines), placeholder)
     elif len(next_line) >= 3 and (line_only_made_of(next_line, '=') or line_only_made_of(next_line, '-')):
         # headline starting with '===' or '---'
-        gfm_lines[line_number] = 'xqz\n'
-        hlx = look_for_headline(render(gfm_lines), 'xqz')
-        if hlx is not None:
-            gfm_lines[line_number] = 'yqz\n'
-            hly = look_for_headline(render(gfm_lines), 'yqz')
+        gfm_lines[line_number] = placeholder + '\n'
+        hl = look_for_headline(render(gfm_lines), placeholder)
 
     # revert headline
     gfm_lines[line_number] = saved_headline
 
-    # check findings
-    if hlx is None or hly is None:
+    if hl is None:
         return None
-    hlx_line, hlx_col = hlx
-    hly_line, hly_col = hly
-    if hlx_line == hly_line and hlx_col == hly_col:
-        # headline found
-        return extract_headline_id(rendered_html_lines, hlx_line, hlx_col)
-    else:
-        return None
+
+    hl_line, hl_col = hl
+    return extract_headline_id(rendered_html_lines, hl_line, hl_col)
+
+
+
+def generate_unique_placeholder(rendered_html_lines):
+    number = 0
+    PREFIX = 'xq'
+    SUFFIX = 'z'
+    while True:
+        solution_found = True
+        for line in rendered_html_lines:
+            x = re.search('id\\s*=\\s*"' + PREFIX + str(number) + SUFFIX + '"', line)
+            if x is None:
+                continue
+            else:
+                number += 1
+                solution_found = False
+                break
+        if solution_found:
+            break
+    # we assume that there will be at least one solution
+    return PREFIX + str(number) + SUFFIX
 
 
 
@@ -117,6 +126,8 @@ def create_line_to_id_map(gfm_lines):
     gfm_lines2 = gfm_lines[:]
     rendered_html_lines = render(gfm_lines)
 
+    placeholder = generate_unique_placeholder(rendered_html_lines)
+
     # line-by-line: assume a headline
     n = len(gfm_lines2)
     for i in range(n):
@@ -124,7 +135,7 @@ def create_line_to_id_map(gfm_lines):
         next_line = ''
         if i < n - 1:
             next_line = gfm_lines2[i + 1]
-        hid = try_create_id(gfm_lines2, i, this_line, next_line, rendered_html_lines)
+        hid = try_create_id(gfm_lines2, i, this_line, next_line, rendered_html_lines, placeholder)
         if hid is not None:
             result[i] = hid
 
