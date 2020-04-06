@@ -44,7 +44,7 @@ def render(gfm_lines):
 
 def look_for_headline(rendered_html_lines, headline_id):
     for l in range(len(rendered_html_lines)):
-        x = re.search('<h\\d id="' + headline_id + '">', rendered_html_lines[l])
+        x = re.search('<h\\d\\s+id\\s*=\\s*"' + headline_id + '"\\s*>', rendered_html_lines[l])
         if x is None:
             continue
         c = x.start()
@@ -59,7 +59,7 @@ def look_for_headline(rendered_html_lines, headline_id):
 def extract_headline_id(rendered_html_lines, l, c):
     line = rendered_html_lines[l]
     line = line[c:]
-    x = re.search('<h\\d id="', line)
+    x = re.search('<h\\d\\s+id\\s*=\\s*"', line)
     if x is None:
         return None
     col = x.start()
@@ -67,7 +67,8 @@ def extract_headline_id(rendered_html_lines, l, c):
         return None
     elif col > 0:
         return None
-    line = line[8:]   # len('<h1 id="') == 8
+    span = x.span()
+    line = line[(span[1] - span[0]):]
     end = line.find('"')
     line = line[:end]
     return line
@@ -145,12 +146,17 @@ def create_line_to_id_map(gfm_lines):
 
 def insert_ids_to_gfm_file(line_to_id_map, gfm_lines):
     result = gfm_lines[:]
+    n = len(result)
     for key, value in line_to_id_map.items():
         str_to_insert = '<a id="' + value + '"></a>'
         line = result[key]
         if line.startswith('#'):
+            if key + 1 >= n:
+                result = result + ['']
             result[key + 1] = str_to_insert + result[key + 1]
         else:
+            if key + 2 >= n:
+                result = result + ['']
             result[key + 2] = str_to_insert + result[key + 2]
     return result
 
