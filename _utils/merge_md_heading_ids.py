@@ -105,20 +105,19 @@ def generate_unique_placeholder(rendered_html_lines):
     number = 0
     PREFIX = 'xq'
     SUFFIX = 'z'
+    result = ''
     while True:
+        result = PREFIX + str(number) + SUFFIX
         solution_found = True
         for line in rendered_html_lines:
-            x = re.search('id\\s*=\\s*"' + PREFIX + str(number) + SUFFIX + '"', line)
-            if x is None:
-                continue
-            else:
+            if result in line:
                 number += 1
                 solution_found = False
                 break
         if solution_found:
             break
     # we assume that there will be at least one solution
-    return PREFIX + str(number) + SUFFIX
+    return result
 
 
 
